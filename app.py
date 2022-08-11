@@ -7,20 +7,22 @@ def init():
     global model
     
     device = 0 if torch.cuda.is_available() else -1
-    model = pipeline('fill-mask', model='bert-base-uncased', device=device)
+    print("Active Device:{}".format(device))
+    model = pipeline('question-answering', model='deepset/xlm-roberta-large-squad2', device=device)
 
 # Inference is ran for every server call
 # Reference your preloaded global model variable here.
 def inference(model_inputs:dict) -> dict:
     global model
-
-    # Parse out your arguments
-    prompt = model_inputs.get('prompt', None)
-    if prompt == None:
-        return {'message': "No prompt provided"}
+    context = model_inputs.get('context', None)
+    question = model_inputs.get('question', None)
+    if context == None:
+        return {'message': "No context provided"}
+    if question == None:
+        return {'message': "No question provided"}
     
     # Run the model
-    result = model(prompt)
+    result = model({'context': context,'question': question})
 
     # Return the results as a dictionary
     return result
